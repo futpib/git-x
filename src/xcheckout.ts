@@ -8,7 +8,7 @@ export async function * xcheckout(branchGlob: string) {
 	const matchingBranches = [];
 
 	for await (const branch of branches) {
-		if (branch === branchGlob || minimatch(branch, branchGlob)) {
+		if (branch.includes(branchGlob) || minimatch(branch, branchGlob)) {
 			matchingBranches.push(branch);
 		}
 	}
@@ -18,6 +18,8 @@ export async function * xcheckout(branchGlob: string) {
 	}
 
 	if (matchingBranches.length > 1) {
+		yield 'Matching branches:';
+		yield * matchingBranches;
 		throw new Error('Too many matching branches.');
 	}
 
