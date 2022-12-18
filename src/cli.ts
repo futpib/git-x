@@ -3,21 +3,11 @@
 import path from 'path';
 import { program } from 'commander';
 import { xworktreePath } from './xworktree/path.js';
+import { xcheckout } from './xcheckout.js';
 import { TolerableError } from './utils.js';
-
-export type ActionResult =
-	| string
-	| Promise<string>;
+import { ActionResult, outputActionResult } from './result.js';
 
 type Action = (...args: any[]) => ActionResult;
-
-async function outputActionResult(actionResult: ActionResult) {
-	const result = await actionResult;
-
-	if (typeof result === 'string') {
-		console.log(result);
-	}
-}
 
 function wrapAction(action: Action) {
 	return async (...args: unknown[]) => {
@@ -43,6 +33,11 @@ const [ _gitName, subcommandName ] = scriptName.split('-');
 
 program
 	.name(programName);
+
+program
+	.command('xcheckout')
+	.argument('<branch>')
+	.action(wrapAction(xcheckout));
 
 const xworktree = (
 	program
