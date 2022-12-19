@@ -7,17 +7,16 @@ interface ResultExecuteGit {
 	args: string[];
 }
 
-export type ActionResult =
+type ActionResult_ =
 	| void
-	| Promise<void>
-
 	| string
-	| Promise<string>
-	| AsyncGenerator<string>
-
 	| ResultExecuteGit
-	| Promise<ResultExecuteGit>
-	| AsyncGenerator<ResultExecuteGit>
+;
+
+export type ActionResult =
+	| ActionResult_
+	| Promise<ActionResult_>
+	| AsyncGenerator<ActionResult_>
 	;
 
 export function resultExecuteGit(args: string[]): ResultExecuteGit {

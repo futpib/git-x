@@ -1,4 +1,4 @@
-import { ActionResult } from "./cli.js";
+import type { ActionResult } from "./result.js";
 
 export class TolerableError extends Error {
 	constructor(
