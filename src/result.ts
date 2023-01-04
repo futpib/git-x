@@ -52,7 +52,7 @@ export async function outputActionResult(actionResult: ActionResult) {
 
 		if (Symbol.asyncIterator in result) {
 			for await (const subresult of (result as AsyncGenerator<string | ResultExecuteGit>)) {
-				outputActionResult(subresult);
+				await outputActionResult(subresult);
 			}
 
 			return;

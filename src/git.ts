@@ -1,5 +1,6 @@
 import { execa } from "execa";
 import readline from "readline";
+import minimatch from 'minimatch';
 
 export function git(args: string[]) {
 	return execa('git', args);
@@ -29,4 +30,28 @@ export async function gitRevParseShowToplevel() {
 
 export function gitBranchList() {
 	return gitLines([ 'for-each-ref', '--format=%(refname:short)', 'refs/heads/' ]);
+}
+
+export async function * gitResolveBranch(branchGlob: string) {
+	const branches = gitBranchList();
+
+	const matchingBranches = [];
+
+	for await (const branch of branches) {
+		if (branch.includes(branchGlob) || minimatch(branch, branchGlob)) {
+			matchingBranches.push(branch);
+		}
+	}
+
+	if (matchingBranches.length === 0) {
+		throw new Error('No matching branches.');
+	}
+
+	if (matchingBranches.length > 1) {
+		yield 'Matching branches:';
+		yield * matchingBranches;
+		throw new Error('Too many matching branches.');
+	}
+
+	return matchingBranches[0];
 }

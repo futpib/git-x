@@ -6,6 +6,7 @@ import { xworktreePath } from './xworktree/path.js';
 import { xcheckout } from './xcheckout.js';
 import { TolerableError } from './utils.js';
 import { ActionResult, outputActionResult } from './result.js';
+import { xrebase } from './xrebase.js';
 
 type Action = (...args: any[]) => ActionResult;
 
@@ -38,6 +39,12 @@ program
 	.command('xcheckout')
 	.argument('<branch>')
 	.action(wrapAction(xcheckout));
+
+program
+	.command('xrebase')
+	.argument('<upstream>')
+	.argument('[topics...]')
+	.action(wrapAction(xrebase));
 
 const xworktree = (
 	program
