@@ -44,13 +44,13 @@ export async function * gitResolveBranch(branchGlob: string) {
 	}
 
 	if (matchingBranches.length === 0) {
-		throw new Error('No matching branches.');
+		throw new Error(`No branches match ${branchGlob}.`);
 	}
 
 	if (matchingBranches.length > 1) {
 		yield 'Matching branches:';
 		yield * matchingBranches;
-		throw new Error('Too many matching branches.');
+		throw new Error(`Too many branches match ${branchGlob}.`);
 	}
 
 	return matchingBranches[0];
