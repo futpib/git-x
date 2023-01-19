@@ -7,11 +7,7 @@ export async function xworktreePath(indexString: undefined | string) {
 	const indexSuffix = indexString === '0' ? undefined : `.${indexString}`;
 
 	const toplevel = await gitRevParseShowToplevel();
-	const toplevelWithoutIndex = (
-		(indexSuffix && toplevel.endsWith(indexSuffix))
-			? toplevel.split('.').slice(0, -1).join('.')
-			: toplevel
-	);
+	const toplevelWithoutIndex = toplevel.replace(/\.\d+$/, '');
 	const targetToplevel = toplevelWithoutIndex + (indexSuffix ?? '');
 
 	try {
