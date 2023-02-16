@@ -1,6 +1,7 @@
 import { execa } from "execa";
 import readline from "readline";
 import minimatch from 'minimatch';
+import { Context } from "vm";
 
 export function git(args: string[]) {
 	return execa('git', args);
@@ -19,8 +20,6 @@ export async function * gitLines(args: string[]) {
 			yield line;
 		}
 	}
-
-	await subprocess;
 }
 
 export async function gitRevParseShowToplevel() {
@@ -32,12 +31,10 @@ export function gitBranchList() {
 	return gitLines([ 'for-each-ref', '--format=%(refname:short)', 'refs/heads/' ]);
 }
 
-export async function * gitResolveBranch(branchGlob: string) {
-	const branches = gitBranchList();
-
+export async function gitResolveBranch(_context: Context, branchGlob: string) {
 	const matchingBranches = [];
 
-	for await (const branch of branches) {
+	for await (const branch of gitBranchList()) {
 		if (branch.includes(branchGlob) || minimatch(branch, branchGlob)) {
 			matchingBranches.push(branch);
 		}
@@ -48,8 +45,7 @@ export async function * gitResolveBranch(branchGlob: string) {
 	}
 
 	if (matchingBranches.length > 1) {
-		yield 'Matching branches:';
-		yield * matchingBranches;
+		console.error('Matching branches:\n', matchingBranches.join('\n'));
 		throw new Error(`Too many branches match ${branchGlob}.`);
 	}
 

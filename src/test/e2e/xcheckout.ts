@@ -9,10 +9,12 @@ test('xcheckout', async t => {
 	const branches = {
 		branch1: [
 			'branch1',
+			'1',
 			'*1',
 		],
 		branch2: [
 			'branch2',
+			'2',
 			'*2',
 		],
 	};
@@ -25,10 +27,15 @@ test('xcheckout', async t => {
 
 	for (const [ branch, patterns ] of Object.entries(branches)) {
 		for (const pattern of patterns) {
-			const {stdout, stderr} = await exec('git', 'xcheckout', pattern);
-			console.log({stdout, stderr});
-			const result = await exec('git', 'branch', '--show-current');
-			t.is(result.stdout, branch);
+			const xcheckoutResult = await exec('git', 'xcheckout', pattern);
+
+			t.is(xcheckoutResult.stdout, '')
+			t.snapshot(xcheckoutResult.stderr, `stderr of \`${xcheckoutResult.escapedCommand}\``);
+
+			const currentBranchResult = await exec('git', 'branch', '--show-current');
+
+			t.is(currentBranchResult.stdout, branch);
+
 			await exec('git', 'checkout', 'master');
 		}
 	}

@@ -1,19 +1,19 @@
+import { Context } from './context.js';
 import { gitResolveBranch } from './git.js';
-import { resultExecuteGit } from './result.js';
 
-export async function * xrebase(upstreamGlob: string, topicGlobs: string[]) {
-	const upstreamBranch = yield * gitResolveBranch(upstreamGlob);
+export async function xrebase(context: Context, upstreamGlob: string, topicGlobs: string[]) {
+	const upstreamBranch = await gitResolveBranch(context, upstreamGlob);
 	const topicBranches = [];
 
 	for (const topicGlob of topicGlobs) {
-		topicBranches.push(yield * gitResolveBranch(topicGlob));
+		topicBranches.push(await gitResolveBranch(context, topicGlob));
 	}
 
 	let currentUpstreamBranch = upstreamBranch;
 	let currentTopicBranch = topicBranches.shift();
 
 	while (currentTopicBranch) {
-		yield resultExecuteGit([ 'rebase', currentUpstreamBranch, currentTopicBranch ]);
+		await context.executeGit([ 'rebase', currentUpstreamBranch, currentTopicBranch ]);
 		currentUpstreamBranch = currentTopicBranch;
 		currentTopicBranch = topicBranches.shift();
 	}

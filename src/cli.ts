@@ -4,31 +4,32 @@ import path from 'path';
 import { program } from 'commander';
 import { xworktreePath } from './xworktree/path.js';
 import { xcheckout } from './xcheckout.js';
-import { TolerableError } from './utils.js';
-import { ActionResult, outputActionResult } from './result.js';
 import { xrebase } from './xrebase.js';
+import { Context, createContext } from './context.js';
 
-type Action = (...args: any[]) => ActionResult;
+type Action = (context: Context, ...args: any[]) => Promise<void>;
 
 function wrapAction(action: Action) {
 	return async (...args: unknown[]) => {
-		try {
-			const result = await action(...args);
-			await outputActionResult(result);
-		} catch (error) {
-			if (error instanceof TolerableError) {
-				await outputActionResult(error.result);
-				program.error(error.message, { exitCode: 1 });
-			}
-
-			throw error;
-		}
+		await action(createContext(), ...args);
 	};
+}
+
+function normalizeArgv(argv: string[]): string[] {
+	let [ nodePath, scriptPath, ...scriptArguments ] = argv
+	const scriptBasename = path.basename(scriptPath);
+
+	if (scriptBasename === 'cli.js') {
+		const newScriptBasename = [ 'git', scriptArguments.shift() ].join('-');
+		scriptPath = path.join(scriptPath, newScriptBasename);
+	}
+
+	return [ nodePath, scriptPath, ...scriptArguments ];
 }
 
 const programName = 'git-x';
 
-const [ nodePath, scriptPath, ...scriptArguments ] = process.argv;
+const [ nodePath, scriptPath, ...scriptArguments ] = normalizeArgv(process.argv);
 const scriptName = path.basename(scriptPath);
 const [ _gitName, subcommandName ] = scriptName.split('-');
 

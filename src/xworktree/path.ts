@@ -1,8 +1,8 @@
 import fs from 'fs/promises';
+import { Context } from '../context.js';
 import { gitRevParseShowToplevel } from "../git.js";
-import { TolerableError } from '../utils.js';
 
-export async function xworktreePath(indexString: undefined | string) {
+export async function xworktreePath(_context: Context, indexString: undefined | string) {
 	indexString = indexString || '0';
 	const indexSuffix = indexString === '0' ? undefined : `.${indexString}`;
 
@@ -14,14 +14,15 @@ export async function xworktreePath(indexString: undefined | string) {
 		const targetToplevelStat = await fs.stat(targetToplevel);
 
 		if (targetToplevelStat.isDirectory()) {
-			return targetToplevel;
+			console.log(targetToplevel);
 		} else {
-			throw new TolerableError(toplevel, new Error(`${targetToplevel} is not a directory`));
+			console.log(toplevel);
+			throw new Error(`${targetToplevel} is not a directory`);
 		}
 	} catch (error) {
 		if (error instanceof Error) {
 			if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-				throw new TolerableError(toplevel, error);
+				console.log(toplevel);
 			}
 		}
 

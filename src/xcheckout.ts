@@ -1,8 +1,8 @@
+import { Context } from './context.js';
 import { gitResolveBranch } from './git.js';
-import { resultExecuteGit } from './result.js';
 
-export async function * xcheckout(branchGlob: string) {
-	const branch = yield * gitResolveBranch(branchGlob);
+export async function xcheckout(context: Context, branchGlob: string) {
+	const branch = await gitResolveBranch(context, branchGlob);
 
-	yield resultExecuteGit([ 'checkout', branch ]);
+	await context.executeGit([ 'checkout', branch ]);
 }
