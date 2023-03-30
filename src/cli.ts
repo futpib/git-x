@@ -3,6 +3,7 @@
 import path from 'path';
 import { program } from 'commander';
 import { xworktreePath } from './xworktree/path.js';
+import { xworktreeAdd } from './xworktree/add.js';
 import { xcheckout } from './xcheckout.js';
 import { xrebase } from './xrebase.js';
 import { Context, createContext } from './context.js';
@@ -56,6 +57,11 @@ xworktree
 	.command('path')
 	.argument('[index]')
 	.action(wrapAction(xworktreePath));
+
+xworktree
+	.command('add')
+	.argument('[index]')
+	.action(wrapAction(xworktreeAdd));
 
 const argv = [ nodePath, programName, subcommandName, ...scriptArguments ];
 

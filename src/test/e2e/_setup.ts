@@ -12,6 +12,7 @@ export interface TestContext {
 		bin: Record<string, string>;
 	},
 
+	baseTempDirPath: string;
 	tempDirPath: string;
 
 	exec: (...args: string[]) => Promise<ExecaReturnValue>;
@@ -24,18 +25,20 @@ export interface TestContext {
 const before: Implementation<[], TestContext> = async t => {
 	const packageJson = JSON.parse(await fs.readFile('package.json', 'utf-8'));
 
-	const tempDirPath = await fs.mkdtemp(path.join(os.tmpdir(), [ packageJson.name, 'e2e-test', '' ].join('-')));
+	const baseTempDirPath = await fs.mkdtemp(path.join(os.tmpdir(), [ packageJson.name, 'e2e-test', '' ].join('-')));
 
-	console.log(tempDirPath);
+	console.log(baseTempDirPath);
 
 	Object.assign(t.context, {
 		packageJson,
-		tempDirPath,
+		baseTempDirPath,
 	});
 };
 
 const beforeEach: Implementation<[], TestContext> = async t => {
-	const { tempDirPath, packageJson } = t.context;
+	const { baseTempDirPath, packageJson } = t.context;
+
+	const tempDirPath = await fs.mkdtemp(path.join(baseTempDirPath, ''));
 
 	const binariesPath = path.join(tempDirPath, 'binaries');
 	const repositoriesPath = path.join(tempDirPath, 'repositories');
@@ -77,6 +80,7 @@ const beforeEach: Implementation<[], TestContext> = async t => {
 	await exec('git', 'commit', '--allow-empty', '--message', 'initial commit');
 
 	Object.assign(t.context, {
+		tempDirPath,
 		exec,
 		toRelative,
 		changeWorkingDirectory,
