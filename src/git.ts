@@ -22,6 +22,11 @@ export async function * gitLines(args: string[]) {
 	}
 }
 
+export async function gitString(args: string[]) {
+	const result = await git(args);
+	return result.stdout;
+}
+
 export async function gitRevParseShowToplevel() {
 	const result = await git([ 'rev-parse', '--show-toplevel' ]);
 	return result.stdout;
@@ -50,4 +55,8 @@ export async function gitResolveBranch(_context: Context, branchGlob: string) {
 	}
 
 	return matchingBranches[0];
+}
+
+export function gitShow(object: string) {
+	return gitString([ 'show', object ]);
 }

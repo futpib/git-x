@@ -6,6 +6,7 @@ import { xworktreePath } from './xworktree/path.js';
 import { xworktreeAdd } from './xworktree/add.js';
 import { xcheckout } from './xcheckout.js';
 import { xrebase } from './xrebase.js';
+import { xreapply } from './xreapply.js';
 import { Context, createContext } from './context.js';
 
 type Action = (context: Context, ...args: any[]) => Promise<void>;
@@ -47,6 +48,12 @@ program
 	.argument('<upstream>')
 	.argument('[topics...]')
 	.action(wrapAction(xrebase));
+
+program
+	.command('xreapply')
+	.argument('<commit>')
+	.option('--no-commit', 'do not commit')
+	.action(wrapAction(xreapply));
 
 const xworktree = (
 	program

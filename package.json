@@ -25,19 +25,22 @@
   },
   "bin": {
     "git-xcheckout": "./lib/cli.js",
+    "git-xreapply": "./lib/cli.js",
+    "git-xrebase": "./lib/cli.js",
     "git-xworktree": "./lib/cli.js"
   },
   "devDependencies": {
     "@ava/typescript": "^3.0.1",
     "@types/minimatch": "^5.1.2",
-    "@types/node": "^18.16.18",
+    "@types/node": "^18.18.9",
     "ava": "^5.3.1",
     "nyc": "^15.1.0",
-    "typescript": "^4.9.5"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "commander": "^9.5.0",
     "execa": "^6.1.0",
-    "minimatch": "^5.1.6"
+    "minimatch": "^5.1.6",
+    "open-editor": "^4.1.1"
   }
 }
