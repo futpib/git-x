@@ -3,14 +3,18 @@ import os from 'os';
 import fs from 'fs/promises';
 import openEditor from 'open-editor';
 import { Context } from './context.js';
-import { gitRevParseShowToplevel, gitShow } from './git.js';
+import { gitDiff, gitRevParseShowToplevel } from './git.js';
 
 export async function xreapply(context: Context, commit: string, {
 	commit: shouldCommit = true,
+	path: showPath,
 }: {
 	commit?: boolean;
+	path?: string | string[];
 } = {}) {
-	const diff = await gitShow(commit);
+	const diff = await gitDiff(commit, {
+		paths: ([] as string[]).concat(showPath ?? []),
+	});
 
 	const tempDirPath = await fs.mkdtemp(path.join(os.tmpdir(), [ 'git', 'xreapply' ].join('-')));
 	const tempFilePath = path.join(tempDirPath, [ commit, 'patch' ].join('.'));

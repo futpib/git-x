@@ -57,6 +57,26 @@ export async function gitResolveBranch(_context: Context, branchGlob: string) {
 	return matchingBranches[0];
 }
 
-export function gitShow(object: string) {
-	return gitString([ 'show', object ]);
+export function gitShow(object: string, {
+	paths,
+}: {
+	paths?: string[];
+} = {}) {
+	return gitString([
+		'show',
+		object,
+		...(paths?.length ? [ '--', ...paths ] : []),
+	]);
+}
+
+export function gitDiff(object: string, {
+	paths,
+}: {
+	paths?: string[];
+} = {}) {
+	return gitString([
+		'diff',
+		object,
+		...(paths?.length ? [ '--', ...paths ] : []),
+	]);
 }

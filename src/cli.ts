@@ -53,6 +53,7 @@ program
 	.command('xreapply')
 	.argument('<commit>')
 	.option('--no-commit', 'do not commit')
+	.option('--path [path]', 'reapply only changes to paths')
 	.action(wrapAction(xreapply));
 
 const xworktree = (
