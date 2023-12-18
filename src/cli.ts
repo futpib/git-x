@@ -2,6 +2,7 @@
 
 import path from 'path';
 import { program } from 'commander';
+import { xworktreeStatus } from './xworktree/status.js';
 import { xworktreePath } from './xworktree/path.js';
 import { xworktreeAdd } from './xworktree/add.js';
 import { xcheckout } from './xcheckout.js';
@@ -60,6 +61,10 @@ const xworktree = (
 	program
 		.command('xworktree')
 );
+
+xworktree
+	.command('status')
+	.action(wrapAction(xworktreeStatus));
 
 xworktree
 	.command('path')

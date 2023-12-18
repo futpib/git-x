@@ -1,6 +1,10 @@
 import { execa } from "execa";
 
-async function executeGit(args: string[]) {
+type GitOptions = {
+};
+
+async function executeGit(args: string[], {
+}: GitOptions = {}) {
 	console.error('+', 'git', ...args);
 
 	await execa('git', args, {
@@ -23,7 +27,7 @@ async function executePatch(args: string[], { input }: PatchOptions) {
 }
 
 export interface Context {
-	executeGit(args: string[]): Promise<void>;
+	executeGit(args: string[], options?: GitOptions): Promise<void>;
 	executePatch(args: string[], options: PatchOptions): Promise<void>;
 }
 
