@@ -1,5 +1,5 @@
 import type { Implementation, TestFn } from 'ava';
-import { execa, ExecaReturnValue } from 'execa';
+import { execa, ResultPromise } from 'execa';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
@@ -15,7 +15,7 @@ export interface TestContext {
 	baseTempDirPath: string;
 	tempDirPath: string;
 
-	exec: (...args: string[]) => Promise<ExecaReturnValue>;
+	exec: (...args: string[]) => ResultPromise & Promise<{ stdout: string }>;
 
 	toRelative: (absolute: string) => string;
 

@@ -13,7 +13,7 @@ test('xworktree path', async t => {
 	}) as ExecaError;
 
 	t.is(toRelative(resultA0.stdout), '');
-	t.is(toRelative(resultA1.stdout), '');
+	t.is(toRelative((resultA1 as any).stdout), '');
 
 	await exec('git', 'worktree', 'add', '../repository.1');
 
@@ -41,7 +41,7 @@ test('xworktree add', async t => {
 	}) as ExecaError;
 
 	t.is(toRelative(resultA0.stdout), '');
-	t.is(toRelative(resultA1.stdout), '');
+	t.is(toRelative((resultA1 as any).stdout), '');
 
 	await exec('git', 'xworktree', 'add', '1');
 

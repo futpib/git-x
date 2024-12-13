@@ -1,6 +1,6 @@
 import { execa } from "execa";
 import readline from "readline";
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 import { Context } from "vm";
 
 export function git(args: string[]) {
