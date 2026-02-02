@@ -1,4 +1,5 @@
 import anyTest from 'ava';
+import { ExecaError } from 'execa';
 import { setup } from './_setup.js';
 
 const test = setup(anyTest);
@@ -39,4 +40,39 @@ test('xcheckout', async t => {
 			await exec('git', 'checkout', 'master');
 		}
 	}
+});
+
+test('xcheckout exact match with ambiguous prefix', async t => {
+	const { exec } = t.context;
+
+	await exec('git', 'checkout', '-b', 'feature/foo');
+	await exec('git', 'checkout', '-b', 'feature/foo-bar');
+	await exec('git', 'checkout', 'master');
+
+	await exec('git', 'xcheckout', 'feature/foo');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'feature/foo');
+});
+
+test('xcheckout frees branch from worktree', async t => {
+	const { exec } = t.context;
+
+	await exec('git', 'checkout', '-b', 'feature/test');
+	await exec('git', 'checkout', 'master');
+
+	await exec('git', 'worktree', 'add', '../worktree1', 'feature/test');
+
+	const error = await t.throwsAsync(() => exec('git', 'checkout', 'feature/test'), {
+		instanceOf: ExecaError,
+	});
+	t.truthy(error);
+
+	await exec('git', 'xcheckout', 'feature/test');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'feature/test');
+
+	const worktreeHeadResult = await exec('git', '-C', '../worktree1', 'rev-parse', '--abbrev-ref', 'HEAD');
+	t.is(worktreeHeadResult.stdout, 'HEAD');
 });

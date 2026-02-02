@@ -50,6 +50,11 @@ export async function gitResolveBranch(_context: Context, branchGlob: string) {
 	}
 
 	if (matchingBranches.length > 1) {
+		const exactMatch = matchingBranches.find(branch => branch === branchGlob);
+		if (exactMatch) {
+			return exactMatch;
+		}
+
 		console.error('Matching branches:\n', matchingBranches.join('\n'));
 		throw new Error(`Too many branches match ${branchGlob}.`);
 	}
