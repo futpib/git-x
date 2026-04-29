@@ -7,9 +7,14 @@ function parseWorktreePath(stderr: string): string | undefined {
 	return match?.[1];
 }
 
-export async function xcheckout(context: Context, branchGlob: string) {
-	const branch = await gitResolveBranch(context, branchGlob);
+function isUnknownBranchError(error: unknown): boolean {
+	if (!(error instanceof ExecaError)) {
+		return false;
+	}
+	return /pathspec '.*' did not match/.test(error.stderr ?? '');
+}
 
+async function checkoutWithWorktreeRecovery(context: Context, branch: string): Promise<void> {
 	try {
 		await context.executeGit([ 'checkout', branch ], { stderr: 'pipe' });
 	} catch (error: unknown) {
@@ -29,4 +34,32 @@ export async function xcheckout(context: Context, branchGlob: string) {
 
 		await context.executeGit([ 'checkout', branch ]);
 	}
+}
+
+export async function xcheckout(context: Context, branchGlob: string) {
+	let branch: string;
+	try {
+		branch = await gitResolveBranch(context, branchGlob);
+	} catch (originalError) {
+		if (branchGlob !== 'master' && branchGlob !== 'main') {
+			throw originalError;
+		}
+
+		const otherName = branchGlob === 'master' ? 'main' : 'master';
+
+		for (const candidate of [ branchGlob, otherName ]) {
+			try {
+				await checkoutWithWorktreeRecovery(context, candidate);
+				return;
+			} catch (error) {
+				if (!isUnknownBranchError(error)) {
+					throw error;
+				}
+			}
+		}
+
+		throw originalError;
+	}
+
+	await checkoutWithWorktreeRecovery(context, branch);
 }

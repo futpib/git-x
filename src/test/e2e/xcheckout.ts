@@ -55,6 +55,81 @@ test('xcheckout exact match with ambiguous prefix', async t => {
 	t.is(currentBranchResult.stdout, 'feature/foo');
 });
 
+test('xcheckout master falls back to local main', async t => {
+	const { exec } = t.context;
+
+	await exec('git', 'branch', '-m', 'master', 'main');
+
+	await exec('git', 'checkout', '-b', 'feature');
+	await exec('git', 'checkout', 'main');
+
+	await exec('git', 'checkout', 'feature');
+
+	await exec('git', 'xcheckout', 'master');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'main');
+});
+
+test('xcheckout main falls back to local master', async t => {
+	const { exec } = t.context;
+
+	await exec('git', 'checkout', '-b', 'feature');
+	await exec('git', 'checkout', 'master');
+
+	await exec('git', 'checkout', 'feature');
+
+	await exec('git', 'xcheckout', 'main');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'master');
+});
+
+test('xcheckout prefers master when both master and main exist', async t => {
+	const { exec } = t.context;
+
+	await exec('git', 'checkout', '-b', 'main');
+	await exec('git', 'checkout', 'master');
+	await exec('git', 'checkout', '-b', 'feature');
+
+	await exec('git', 'xcheckout', 'master');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'master');
+});
+
+test('xcheckout main prefers main when both master and main exist', async t => {
+	const { exec } = t.context;
+
+	await exec('git', 'checkout', '-b', 'main');
+	await exec('git', 'checkout', 'master');
+	await exec('git', 'checkout', '-b', 'feature');
+
+	await exec('git', 'xcheckout', 'main');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'main');
+});
+
+test('xcheckout master falls back to remote main', async t => {
+	const { exec, tempDirPath } = t.context;
+
+	const remotePath = `${tempDirPath}/remote.git`;
+	await exec('git', 'init', '--bare', remotePath);
+
+	await exec('git', 'branch', '-m', 'master', 'main');
+	await exec('git', 'remote', 'add', 'origin', remotePath);
+	await exec('git', 'push', 'origin', 'main');
+
+	await exec('git', 'checkout', '-b', 'feature');
+	await exec('git', 'branch', '-D', 'main');
+
+	await exec('git', 'xcheckout', 'master');
+
+	const currentBranchResult = await exec('git', 'branch', '--show-current');
+	t.is(currentBranchResult.stdout, 'main');
+});
+
 test('xcheckout frees branch from worktree', async t => {
 	const { exec } = t.context;
 
